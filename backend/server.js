@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const nodemailer = require("nodemailer");
 const express = require("express");
 const cors = require("cors");
@@ -5,6 +7,12 @@ const multer = require("multer");
 const path = require("path");
 
 const app = express();
+
+// ================= ENV =================
+const PORT = process.env.PORT || 5000;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
 
 // ================= MIDDLEWARE =================
 app.use(cors());
@@ -33,11 +41,11 @@ app.get("/visit", (req, res) => {
     res.json({ visitors });
 });
 
-// LOGIN
+// LOGIN (✅ FIXED using env)
 app.post("/login", (req, res) => {
     const { password } = req.body;
 
-    if (password === "SHIVnan@2525.54321") {
+    if (password === ADMIN_PASSWORD) {
         res.json({ success: true });
     } else {
         res.json({ success: false });
@@ -95,7 +103,7 @@ app.get("/skills", (req, res) => {
     res.json(skills);
 });
 
-// DELETE SKILL (✅ ONLY ONCE)
+// DELETE SKILL
 app.post("/delete-skill", (req, res) => {
     const { index } = req.body;
 
@@ -105,6 +113,7 @@ app.post("/delete-skill", (req, res) => {
 
     res.json({ success: true });
 });
+
 // ================= CONTACT =================
 app.post("/contact", async (req, res) => {
 
@@ -119,14 +128,14 @@ app.post("/contact", async (req, res) => {
         let transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-                user: "shivangini.g25@gmail.com",   // ✅ FIXED
-                pass: "abcd efgh ijkl mnop"         // ✅ APP PASSWORD
+                user: EMAIL_USER,
+                pass: EMAIL_PASS
             }
         });
 
         let mailOptions = {
             from: email,
-            to: "shivangini.g25@gmail.com",        // ✅ FIXED
+            to: EMAIL_USER,
             subject: `New Portfolio Message from ${name}`,
             text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`
         };
@@ -135,18 +144,19 @@ app.post("/contact", async (req, res) => {
 
         console.log("Email sent");
         res.json({ success: true });
-
+``
     } catch (error) {
         console.log(error);
         res.json({ success: false });
     }
 });
+
 // ================= DEFAULT ROUTE =================
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend", "index.html"));
 });
 
 // ================= SERVER =================
-app.listen(5000, () => {
-    console.log("Server running on http://localhost:5000 🚀");
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT} 🚀`);
 });

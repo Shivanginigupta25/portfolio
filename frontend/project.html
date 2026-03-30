@@ -23,28 +23,27 @@
     </div>
 </header>
 
-<section id= "project" >
-    <h2>Project</h2>
-    <form id="projectForm">
+<section id="projects-section" >
+    <h1>My Projects</h1>
     <div class="owner-only">
-    <input type="text" id="title" placeholder="Project Title">
-    <input type="text" id="desc" placeholder="Project Description">
+    <input id="title" placeholder="Title">
+    <input id="desc" placeholder="Description">
     <input type="file" id="file">
     <button onclick="addProject()">Add Project</button>
 </div>
-</form>
-
-    <hr>
-            <div id="projects">
-                   <div class="project-card">
+<!-- 🔥 GITHUB ADD (ONLY ADDITION) -->
+<div class="owner-only">
+    <input id="repoName" placeholder="GitHub Repo Name">
+    <button onclick="addGithubRepo()">Add GitHub Repo</button>
+</div>
+    <div id="projects">
+           <div class="project-card">
         <h3>Test Project</h3>
         <p>This should be visible</p>
     </div>
-            </div>
+    </div>
+
 </section>
-
-
-
 
 </body>
 <script src="script.js"></script>
