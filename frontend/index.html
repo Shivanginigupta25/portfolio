@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="card glass"></div>
+<div id="progress"></div>
+<header>
+    <div class="nav">
+       
+        <h2>Portfolio</h2>
+        <a href="index.html">Home</a> 
+        <a href="about.html">About</a> 
+        <a href="project.html">Projects</a> 
+        <a href="contact.html">Contact</a>
+         <button onclick="toggleTheme()" style="margin-left:15px;">Theme</button>
+        <button onclick="login()" style="margin-left:20px;">Admin Login</button>
+
+    </div>
+</header> 
+
+<!-- HOME -->
+<section id="home"> 
+    <div class="left"> 
+        <img src="1111.jpeg" alt="profile"> 
+    </div>
+
+    <div class="right">
+        <h1>Hi, I am Shivangini Gupta</h1>
+        <p>Welcome to my Portfolio</p>
+        <h3 id="typing-id"></h3>
+        <hr>
+        <br>
+        <div class="hero-buttons">
+    <a href="#projects-section" class="btn-primary">View Projects</a>
+    <br>
+    <a href="contact.html" class="btn-secondary">Hire Me</a>
+</div>
+    </div>
+</section>
+
+<hr>
+
+<!-- ABOUT -->
+<section id="about" class="fade">
+    <h1>About Me</h1>
+      <p id="typing"></p>
+       <section class="fade" id="whatido">
+    <h1>What I Do</h1>
+
+    <!-- OWNER EDIT PANEL -->
+    <div class="owner-only">
+        <input id="wd1title" placeholder="Title 1">
+        <input id="wd1desc" placeholder="Description 1">
+
+        <input id="wd2title" placeholder="Title 2">
+        <input id="wd2desc" placeholder="Description 2">
+
+        <input id="wd3title" placeholder="Title 3">
+        <input id="wd3desc" placeholder="Description 3">
+
+        <button onclick="saveWhatIDo()">Save</button>
+    </div>
+
+    <!-- DISPLAY -->
+    <div class="row" id="whatido-content"></div>
+</section>
+    <div class="row">
+        <p><strong>Degree:</strong> BCA</p>
+        <p><strong>Languages:</strong> English, Hindi</p>
+    </div>
+    <!-- SKILLS -->
+
+    <section id="skills-section" class="fade">
+
+    <h1>My Skills</h1>
+
+    <div class="owner-only">
+        <input id="skillInput" placeholder="Enter skill">
+        <button onclick="addSkill()">Add Skill</button>
+    </div>
+
+    <ul id="skills"></ul>
+
+</section>
+<hr>
+<!-- CONTACT -->
+</section>
+
+<h1 id="views"></h1>
+
+
+<!-- PROJECTS -->
+<div class="owner-only">
+    <input id="title" placeholder="Title">
+    <input id="desc" placeholder="Description">
+    <input type="file" id="file">
+    <button onclick="addProject()">Add Project</button>
+</div>
+<!-- 🔥 GITHUB ADD (ONLY ADDITION) -->
+<div class="owner-only">
+    <input id="repoName" placeholder="GitHub Repo Name">
+    <button onclick="addGithubRepo()">Add GitHub Repo</button>
+</div>
+
+<section id="projects-section" class="fade">
+    <h1>My Projects</h1>
+    <div id="projects">
+           <div class="project-card">
+        <h3>Test Project</h3>
+        <p>This should be visible</p>
+    </div>
+    </div>
+
+</section>
+
+
+<section id="contact" class="fade">
+    <h1>Contact Me</h1>
+    <p style="color:#cbd5e1;">Let’s connect </p>
+
+    <!-- CONTACT FORM (EMAIL) -->
+    <div class="contact-box">
+        <input type="text" id="name" placeholder="Your Name">
+        <input type="email" id="email" placeholder="Your Email">
+        <textarea id="message" placeholder="Your Message"></textarea>
+
+        <button onclick="sendMessage()">Send Message</button>
+        <p id="status"></p>
+
+        <!-- ✅ WHATSAPP BUTTON -->
+        <a href="https://wa.me/919103932328?text=Hi%20I%20saw%20your%20portfolio" 
+           target="_blank" class="whatsapp-btn">
+             Chat on WhatsApp
+        </a>
+    </div>
+
+    <!-- INFO -->
+    <div class="card">
+        <p><strong> Phone:</strong> +91-9103932328</p>
+        <p><strong> Email:</strong> shivangini.g25@gmail.com</p>
+    </div>
+
+    <div class="card">
+        <a href="https://github.com/Shivanginigupta25" target="_blank">GitHub</a>
+        <a href="https://linkedin.com/shivangini-g25" target="_blank">LinkedIn</a>
+       
+    </div>
+
+    <div class="time">
+        Available: 11 AM – 8 PM
+    </div>
+</section>
+<script src="script.js"></script>
+
+<script>
+/* HOME TYPING */
+let text1 = "Passionate about coding, design, and continuous learning";
+let i1 = 0;
+
+function typeHome() {
+    if (i1 < text1.length) {
+        document.getElementById("typing-id").innerHTML += text1.charAt(i1);
+        i1++;
+        setTimeout(typeHome, 50);
+    }
+}
+typeHome();
+</script>
+
+<script>
+/* ABOUT TYPING */
+let text2 = "I am a BCA student passionate about coding and web development.";
+let i2 = 0;
+
+function typeAbout() {
+    if (i2 < text2.length) {
+        document.getElementById("typing").innerHTML += text2.charAt(i2);
+        i2++;
+        setTimeout(typeAbout, 40);
+    }
+}
+
+/* 🔥 RUN ONLY WHEN USER SCROLLS TO ABOUT */
+window.addEventListener("scroll", () => {
+    let about = document.getElementById("about");
+
+    if (about.getBoundingClientRect().top < window.innerHeight - 100) {
+        if (i2 === 0) {  // prevent repeat
+            typeAbout();
+        }
+    }
+});
+</script>
+<div id="projectModal">
+    <span onclick="closeModal()">✖</span>
+    <div id="modalContent"></div>
+</div>
+<br>
+<br>
+<br>
+<br>
+<button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="top-btn">↑</button>
+<footer 
+style="position:fixed;bottom:0;left:0;width:100%;text-align:center;padding:10px;font-size:14px;background:rgba(0,0,0,0.7);color:white;backdrop-filter:blur(10px);z-index:1000;transition:0.3s;"
+id="footer">
+
+© 2026 Shivangini Gupta | All Rights Reserved
+
+</footer>
+</body>
+<script src="script.js"></script>
+</html>

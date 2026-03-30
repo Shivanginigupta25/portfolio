@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="card glass"></div>
+<div id="progress"></div>
+
+<header> 
+    <div class="nav">
+        <h2>Portfolio</h2>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="project.html">Projects</a>
+        <a href="contact.html">Contact</a>
+        <button onclick="toggleTheme()" style="margin-left:15px;">Theme</button>
+        <button onclick="login()" style="margin-left:20px;">Admin Login</button>
+
+    </div>
+</header>
+
+<section id= "project" >
+    <h2>Project</h2>
+    <form id="projectForm">
+    <div class="owner-only">
+    <input type="text" id="title" placeholder="Project Title">
+    <input type="text" id="desc" placeholder="Project Description">
+    <input type="file" id="file">
+    <button onclick="addProject()">Add Project</button>
+</div>
+</form>
+
+    <hr>
+            <div id="projects">
+                   <div class="project-card">
+        <h3>Test Project</h3>
+        <p>This should be visible</p>
+    </div>
+            </div>
+</section>
+
+
+
+
+</body>
+<script src="script.js"></script>
+</html>
