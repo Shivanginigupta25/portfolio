@@ -1,3 +1,4 @@
+let githubSelected = JSON.parse(localStorage.getItem("githubRepos")) || [];
 // ================= LOAD THEME =================
 let savedTheme = localStorage.getItem("theme");
 
@@ -50,15 +51,22 @@ function loadWhatIDo() {
     if (!div) return;
 
     div.innerHTML = "";
+     data.forEach((d, index) => {
+    div.innerHTML += `
+        <div class="card">
+            <h3>${d.title}</h3>
+            <p>${d.desc}</p>
 
-    data.forEach(d => {
-        div.innerHTML += `
-            <div class="card">
-                <h3>${d.title}</h3>
-                <p>${d.desc}</p>
-            </div>
-        `;
-    });
+            ${isOwner ? `<button onclick="deleteWhatIDo(${index})">❌ Delete</button>` : ""}
+        </div>
+    `;
+});
+}
+function deleteWhatIDo(index) {
+    let data = JSON.parse(localStorage.getItem("whatido")) || [];
+    data.splice(index, 1);
+    localStorage.setItem("whatido", JSON.stringify(data));
+    loadWhatIDo();
 }
 
 // SAVE (OWNER)
@@ -99,6 +107,34 @@ function addProject() {
     fetch("/add-project", { method: "POST", body: form })
     .then(loadProjects);
 }
+function addGithubRepo() {
+    let input = document.getElementById("repoName").value.trim();
+
+    if (!input) {
+        alert("Enter repo name");
+        return;
+    }
+
+    // 🔥 handle full GitHub link also
+    if (input.includes("github.com")) {
+        let parts = input.split("/");
+        input = parts[parts.length - 1];
+    }
+
+    // 🔥 reload latest data
+    let githubSelected = JSON.parse(localStorage.getItem("githubRepos")) || [];
+
+    if (!githubSelected.includes(input)) {
+        githubSelected.push(input);
+        localStorage.setItem("githubRepos", JSON.stringify(githubSelected));
+    }
+
+    console.log("Saved repos:", githubSelected);
+
+    document.getElementById("repoName").value = "";
+
+    loadGithubProjects();
+}
 
 function loadProjects() {
     fetch("/projects")
@@ -109,17 +145,36 @@ function loadProjects() {
 
         div.innerHTML = "";
 
-        data.forEach(p => {
-            div.innerHTML += `
-                <div class="project-card">
-                    <h3>${p.title}</h3>
-                    <p>${p.desc}</p>
-                </div>
-            `;
-        });
+        data.forEach((p, index) => {
+    div.innerHTML += `
+        <div class="project-card">
+            <h3>${p.title}</h3>
+            <p>${p.desc}</p>
+
+            ${isOwner ? `<button onclick="deleteProject(${index})">❌ Delete</button>` : ""}
+        </div>
+    `;
+});
 
         loadGithubProjects(); // merge github
     });
+}
+function deleteProject(index) {
+    fetch("/delete-project", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ index })
+    }).then(loadProjects);
+}
+function deleteGithubRepo(repoName) {
+    let githubSelected = JSON.parse(localStorage.getItem("githubRepos")) || [];
+
+    // remove selected repo
+    githubSelected = githubSelected.filter(r => r !== repoName);
+
+    localStorage.setItem("githubRepos", JSON.stringify(githubSelected));
+
+    loadGithubProjects();
 }
 
 // ================= SKILLS =================
@@ -139,59 +194,68 @@ function loadSkills() {
         if (!el) return;
 
         el.innerHTML = "";
-        data.forEach(s => el.innerHTML += `<li>${s}</li>`);
+        data.forEach((s, index) => {
+    el.innerHTML += `
+        <li>
+            ${s}
+            ${isOwner ? `<button onclick="deleteSkill(${index})">❌</button>` : ""}
+        </li>
+    `;
+});
     });
 }
-
-// ================= GITHUB (ADDED ONLY) =================
-let githubSelected = JSON.parse(localStorage.getItem("githubRepos")) || [];
-
-function addGithubRepo() {
-    let repo = document.getElementById("repoName").value.trim();
-
-    if (!repo) return alert("Enter repo name");
-
-    if (!githubSelected.includes(repo)) {
-        githubSelected.push(repo);
-        localStorage.setItem("githubRepos", JSON.stringify(githubSelected));
-    }
-
-    document.getElementById("repoName").value = "";
-    loadGithubProjects();
+function deleteSkill(index) {
+    fetch("/delete-skill", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ index })
+    }).then(loadSkills);
 }
-
+// ================= GITHUB (ADDED ONLY) =================
 function loadGithubProjects() {
     let username = "Shivanginigupta25";
+
+    let githubSelected = JSON.parse(localStorage.getItem("githubRepos")) || [];
 
     fetch(`https://api.github.com/users/${username}/repos`)
     .then(res => res.json())
     .then(data => {
+
+        console.log("GitHub repos:", data);
+
         let container = document.getElementById("projects");
         if (!container) return;
 
-        let filtered = data.filter(repo =>
-            githubSelected.includes(repo.name)
-        );
+        // 🔥 remove only old github cards (not normal projects)
+        document.querySelectorAll(".github-card").forEach(el => el.remove());
 
-        filtered.forEach(repo => {
+        let found = false;
 
-            if (document.getElementById("git-" + repo.name)) return;
+        data.forEach(repo => {
+            if (githubSelected.includes(repo.name)) {
+                found = true;
 
-            container.innerHTML += `
-                <div class="project-card" id="git-${repo.name}">
-                    <h3>${repo.name}</h3>
-                    <p>${repo.description || "No description"}</p>
-                    <p style="color:#38bdf8;">🌐 GitHub Project</p>
+                container.innerHTML += `
+    <div class="project-card github-card">
+        <h3>${repo.name}</h3>
+        <p>${repo.description || "No description"}</p>
 
-                    <a href="${repo.html_url}" target="_blank">
-                        <button>View Code 🔗</button>
-                    </a>
-                </div>
-            `;
+        <a href="${repo.html_url}" target="_blank">
+            <button>View Code 🔗</button>
+        </a>
+
+        ${isOwner ? `<button onclick="deleteGithubRepo('${repo.name}')">❌ Delete</button>` : ""}
+    </div>
+`;
+            }
         });
-    });
-}
 
+        if (!found) {
+            console.log("❌ No matching repo found");
+        }
+    })
+    .catch(err => console.log("Error:", err));
+}
 // ================= CONTACT =================
 function sendMessage() {
 
@@ -241,5 +305,4 @@ document.addEventListener("mousemove", e => {
     document.body.style.setProperty("--x", e.clientX + "px");
     document.body.style.setProperty("--y", e.clientY + "px");
 
-    let glow = document.querySelector("body::after");
 });
