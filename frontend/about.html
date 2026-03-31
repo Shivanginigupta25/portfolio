@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,81 +8,91 @@
 </head>
 
 <body>
+
 <div class="card glass"></div>
 <div id="progress"></div>
+
 <header>
     <div class="nav">
         <h2>Portfolio</h2>
         <div>
             <a href="index.html">Home</a>
-            <a href="about.html">About</a>
+            <a href="about.html" class="active">About</a>
             <a href="project.html">Projects</a>
             <a href="contact.html">Contact</a>
-            <button onclick="toggleTheme()" style="margin-left:15px;">Theme</button>
-        <button onclick="login()" style="margin-left:20px;">Admin Login</button>
-
+            <button onclick="toggleTheme()">Theme</button>
+            
         </div>
     </div>
 </header>
 
-<!-- ABOUT SECTION -->
+<!-- ABOUT -->
 <section id="about">
+<div class="container">
 
     <h1>About Me</h1>
-
     <p id="typing"></p>
-           <section class="fade" id="whatido">
-    <h1>What I Do</h1>
 
-    <!-- OWNER EDIT PANEL -->
-    <div class="owner-only">
-        <input id="wd1title" placeholder="Title 1">
-        <input id="wd1desc" placeholder="Description 1">
+    <!-- WHAT I DO -->
+    <div id="whatido">
+        <h2>What I Do</h2>
 
-        <input id="wd2title" placeholder="Title 2">
-        <input id="wd2desc" placeholder="Description 2">
+        <div class="owner-only">
+            <input id="wd1title" placeholder="Title 1">
+            <input id="wd1desc" placeholder="Description 1">
 
-        <input id="wd3title" placeholder="Title 3">
-        <input id="wd3desc" placeholder="Description 3">
+            <input id="wd2title" placeholder="Title 2">
+            <input id="wd2desc" placeholder="Description 2">
 
-        <button onclick="saveWhatIDo()">Save</button>
+            <input id="wd3title" placeholder="Title 3">
+            <input id="wd3desc" placeholder="Description 3">
+
+            <button onclick="saveWhatIDo()">Save</button>
+        </div>
+
+        <div class="row" id="whatido-content"></div>
     </div>
 
-    <!-- DISPLAY -->
-    <div class="row" id="whatido-content"></div>
+<div class="about-left">
+
+    <div class="edu-lang-flex">
+
+        <!-- EDUCATION -->
+        <div class="edu-card">
+            <h3>🎓 Education</h3>
+            <p class="highlight">BCA - Computer Applications</p>
+            <span class="edu-tag">Student</span>
+        </div>
+
+        <!-- LANGUAGES -->
+        <div class="lang-box">
+            <h3>🌍 Languages</h3>
+            <div class="lang-tags">
+                <span>English</span>
+                <span>Hindi</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+    <!-- RIGHT SIDE -->
+    <div class="about-right">
+        <h3>💻 My Skills</h3>
+
+        <div class="owner-only skill-box">
+            <input type="text" id="skillInput" placeholder="Add skill">
+            <button onclick="addSkill()">Add</button>
+        </div>
+
+        <div id="skills" class="skills"></div>
+    </div>
+
+</div>
+
 </section>
 
-    <div class="row">
-        <p><strong>Degree:</strong> BCA</p>
-        <p><strong>Languages:</strong> English, Hindi</p>
-    </div>
-
-    <!-- SKILLS -->
-      <h3>My Skills</h3>
-      <ul id="skills"></ul>
-
-        <ul id="skillList"></ul>
-    </div>
-
-</section>
-
-<!-- JS -->
 <script>
-function addSkill() {
-    let skill = document.getElementById("skillInput").value;
-
-    if (skill.trim() === "") return;
-
-    let li = document.createElement("li");
-    li.textContent = skill;
-    li.classList.add("skill-tag");
-
-    document.getElementById("skillList").appendChild(li);
-
-    document.getElementById("skillInput").value = "";
-}
-
-// Typing Effect
 let text = "I am a BCA student passionate about coding and web development.";
 let i = 0;
 
@@ -94,10 +103,9 @@ function typeEffect() {
         setTimeout(typeEffect, 40);
     }
 }
-
 typeEffect();
 </script>
 
-</body>
 <script src="script.js"></script>
+</body>
 </html>

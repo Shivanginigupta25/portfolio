@@ -16,13 +16,13 @@
         <a href="about.html">About</a>
         <a href="project.html">Projects</a>
         <a href="contact.html" class="active">Contact</a>
-
-        <button onclick="toggleTheme()">Theme</button>
-        <button onclick="login()">Admin Login</button>
+         <button onclick="toggleTheme()">Theme</button>
+>
     </div>
 </header>
 
 <section id="contact" >
+     <div class="container"></div>
 
     <h1>Contact Me</h1>
     <p style="color:#cbd5e1;">Let’s connect </p>
@@ -59,40 +59,6 @@
 
 <script src="script.js"></script>
 
-<script>
-function sendMessage() {
-
-    let name = document.getElementById("name").value;
-    let email = document.getElementById("email").value;
-    let message = document.getElementById("message").value;
-    let status = document.getElementById("status");
-
-    if (!name || !email || !message) {
-        status.innerText = "⚠️ Fill all fields";
-        return;
-    }
-
-    fetch("/contact", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ name, email, message })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            status.innerText = "✅ Message sent!";
-            document.getElementById("name").value = "";
-            document.getElementById("email").value = "";
-            document.getElementById("message").value = "";
-        } else {
-            status.innerText = "❌ Failed to send";
-        }
-    })
-    .catch(() => {
-        status.innerText = "❌ Server error";
-    });
-}
-</script>
 
 </body>
 </html>

@@ -14,29 +14,14 @@ window.onload = () => {
     loadGithubProjects(); // ✅ added
     loadWhatIDo();
 };
-
-// ================= GLOBAL =================
 let isOwner = localStorage.getItem("owner") === "true";
 
-// ================= LOGIN =================
-function login() {
-    let pass = prompt("Enter password");
-
-    fetch("/login", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ password: pass })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            isOwner = true;
-            document.body.classList.add("owner");
-            localStorage.setItem("owner", "true");
-            updateOwnerUI();
-        }
-    });
+if (isOwner) {
+    document.body.classList.add("owner");
 }
+// ================= GLOBAL =================
+
+
 // ================= WHAT I DO =================
 
 // LOAD
@@ -98,15 +83,7 @@ function updateOwnerUI() {
 }
 
 // ================= PROJECTS =================
-function addProject() {
-    let form = new FormData();
-    form.append("title", title.value);
-    form.append("desc", desc.value);
-    if (file.files[0]) form.append("file", file.files[0]);
 
-    fetch("/add-project", { method: "POST", body: form })
-    .then(loadProjects);
-}
 function addGithubRepo() {
     let input = document.getElementById("repoName").value.trim();
 
@@ -136,35 +113,46 @@ function addGithubRepo() {
     loadGithubProjects();
 }
 
-function loadProjects() {
-    fetch("/projects")
-    .then(res => res.json())
-    .then(data => {
-        let div = document.getElementById("projects");
-        if (!div) return;
 
-        div.innerHTML = "";
+function addProject() {
+    let projects = JSON.parse(localStorage.getItem("projects")) || [];
 
-        data.forEach((p, index) => {
-    div.innerHTML += `
-        <div class="project-card">
-            <h3>${p.title}</h3>
-            <p>${p.desc}</p>
-
-            ${isOwner ? `<button onclick="deleteProject(${index})">❌ Delete</button>` : ""}
-        </div>
-    `;
-});
-
-        loadGithubProjects(); // merge github
+    projects.push({
+        title: title.value,
+        desc: desc.value
     });
+
+    localStorage.setItem("projects", JSON.stringify(projects));
+    loadProjects();
 }
+
+function loadProjects() {
+    let projects = JSON.parse(localStorage.getItem("projects")) || [];
+    let div = document.getElementById("projects");
+
+    if (!div) return;
+
+    div.innerHTML = "";
+
+    projects.forEach((p, index) => {
+        div.innerHTML += `
+            <div class="project-card">
+                <h3>${p.title}</h3>
+                <p>${p.desc}</p>
+
+                ${isOwner ? `<button onclick="deleteProject(${index})">❌ Delete</button>` : ""}
+            </div>
+        `;
+    });
+
+    loadGithubProjects();
+}
+
 function deleteProject(index) {
-    fetch("/delete-project", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ index })
-    }).then(loadProjects);
+    let projects = JSON.parse(localStorage.getItem("projects")) || [];
+    projects.splice(index, 1);
+    localStorage.setItem("projects", JSON.stringify(projects));
+    loadProjects();
 }
 function deleteGithubRepo(repoName) {
     let githubSelected = JSON.parse(localStorage.getItem("githubRepos")) || [];
@@ -179,37 +167,37 @@ function deleteGithubRepo(repoName) {
 
 // ================= SKILLS =================
 function addSkill() {
-    fetch("/add-skill", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ skill: skillInput.value })
-    }).then(loadSkills);
+    let skills = JSON.parse(localStorage.getItem("skills")) || [];
+    skills.push(skillInput.value);
+
+    localStorage.setItem("skills", JSON.stringify(skills));
+    loadSkills();
 }
 
 function loadSkills() {
-    fetch("/skills")
-    .then(res => res.json())
-    .then(data => {
-        let el = document.getElementById("skills");
-        if (!el) return;
+    let skills = JSON.parse(localStorage.getItem("skills")) || [];
+    let el = document.getElementById("skills");
 
-        el.innerHTML = "";
-        data.forEach((s, index) => {
-    el.innerHTML += `
-        <li>
-            ${s}
-            ${isOwner ? `<button onclick="deleteSkill(${index})">❌</button>` : ""}
-        </li>
-    `;
-});
+    if (!el) return;
+
+    el.innerHTML = "";
+
+    skills.forEach((s, index) => {
+        el.innerHTML += `
+            <li>
+                ${s}
+                ${isOwner ? `<button onclick="deleteSkill(${index})">❌</button>` : ""}
+            </li>
+        `;
     });
 }
+
 function deleteSkill(index) {
-    fetch("/delete-skill", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ index })
-    }).then(loadSkills);
+    let skills = JSON.parse(localStorage.getItem("skills")) || [];
+    skills.splice(index, 1);
+
+    localStorage.setItem("skills", JSON.stringify(skills));
+    loadSkills();
 }
 // ================= GITHUB (ADDED ONLY) =================
 function loadGithubProjects() {
@@ -284,25 +272,9 @@ function toggleTheme() {
     localStorage.setItem("theme", isLight ? "light" : "dark");
     document.getElementById("themeBtn").innerText = isLight ? "🌙" : "☀️";
 }
-/* 🔥 SMOOTH FADE + SLIDE */
-document.querySelectorAll(".fade").forEach(el => {
-    el.style.opacity = 0;
-    el.style.transform = "translateY(40px)";
-});
-
-window.addEventListener("scroll", () => {
-    document.querySelectorAll(".fade").forEach(el => {
-        let pos = el.getBoundingClientRect().top;
-
-        if (pos < window.innerHeight - 100) {
-            el.style.opacity = 1;
-            el.style.transform = "translateY(0)";
-            el.style.transition = "0.6s ease";
-        }
-    });
-});
 document.addEventListener("mousemove", e => {
     document.body.style.setProperty("--x", e.clientX + "px");
     document.body.style.setProperty("--y", e.clientY + "px");
 
 });
+
