@@ -1,79 +1,24 @@
-let githubSelected = JSON.parse(localStorage.getItem("githubRepos")) || [];
-// ================= LOAD THEME =================
-let savedTheme = localStorage.getItem("theme");
-
-if (savedTheme === "light") {
-    document.body.classList.add("light");
-}
-// ================= INIT =================
-window.onload = () => {
-    document.querySelectorAll(".fade").forEach(el => el.classList.add("show"));
-    updateOwnerUI();
-    loadProjects();
-    loadSkills();
-    loadGithubProjects(); // ✅ added
-    loadWhatIDo();
-};
+// ================= OWNER MODE (NO PASSWORD) =================
 let isOwner = localStorage.getItem("owner") === "true";
 
+// apply owner class
 if (isOwner) {
     document.body.classList.add("owner");
 }
-// ================= GLOBAL =================
 
-
-// ================= WHAT I DO =================
-
-// LOAD
-function loadWhatIDo() {
-    let data = JSON.parse(localStorage.getItem("whatido")) || [
-        { title: "💻 Web Development", desc: "I build responsive and modern websites using HTML, CSS, JS." },
-        { title: "🤖 Machine Learning", desc: "I explore ML models and data-driven solutions." },
-        { title: "🎨 UI/UX Design", desc: "I design clean and user-friendly interfaces." }
-    ];
-
-    let div = document.getElementById("whatido-content");
-    if (!div) return;
-
-    div.innerHTML = "";
-     data.forEach((d, index) => {
-    div.innerHTML += `
-        <div class="card">
-            <h3>${d.title}</h3>
-            <p>${d.desc}</p>
-
-            ${isOwner ? `<button onclick="deleteWhatIDo(${index})">❌ Delete</button>` : ""}
-        </div>
-    `;
-});
-}
-function deleteWhatIDo(index) {
-    let data = JSON.parse(localStorage.getItem("whatido")) || [];
-    data.splice(index, 1);
-    localStorage.setItem("whatido", JSON.stringify(data));
+// ================= INIT =================
+window.onload = () => {
+    updateOwnerUI();
+    loadProjects();
+    loadSkills();
+    loadGithubProjects();
     loadWhatIDo();
-}
 
-// SAVE (OWNER)
-function saveWhatIDo() {
-    let data = [
-        {
-            title: document.getElementById("wd1title").value,
-            desc: document.getElementById("wd1desc").value
-        },
-        {
-            title: document.getElementById("wd2title").value,
-            desc: document.getElementById("wd2desc").value
-        },
-        {
-            title: document.getElementById("wd3title").value,
-            desc: document.getElementById("wd3desc").value
-        }
-    ];
-
-    localStorage.setItem("whatido", JSON.stringify(data));
-    loadWhatIDo();
-}
+    // hide logout button for viewers
+    if (!isOwner) {
+        document.querySelector(".logout-btn")?.remove();
+    }
+};
 
 // ================= OWNER UI =================
 function updateOwnerUI() {
@@ -82,48 +27,100 @@ function updateOwnerUI() {
     });
 }
 
-// ================= PROJECTS =================
-
-function addGithubRepo() {
-    let input = document.getElementById("repoName").value.trim();
-
-    if (!input) {
-        alert("Enter repo name");
-        return;
-    }
-
-    // 🔥 handle full GitHub link also
-    if (input.includes("github.com")) {
-        let parts = input.split("/");
-        input = parts[parts.length - 1];
-    }
-
-    // 🔥 reload latest data
-    let githubSelected = JSON.parse(localStorage.getItem("githubRepos")) || [];
-
-    if (!githubSelected.includes(input)) {
-        githubSelected.push(input);
-        localStorage.setItem("githubRepos", JSON.stringify(githubSelected));
-    }
-
-    console.log("Saved repos:", githubSelected);
-
-    document.getElementById("repoName").value = "";
-
-    loadGithubProjects();
+// ================= LOGOUT =================
+function logoutOwner() {
+    localStorage.removeItem("owner");
+    location.reload();
 }
 
+// ================= WHAT I DO =================
+function loadWhatIDo() {
+    let data = JSON.parse(localStorage.getItem("whatido")) || [
+        { title: "💻 Web Development", desc: "I build responsive websites." },
+        { title: "🤖 Machine Learning", desc: "I explore ML models." },
+        { title: "🎨 UI/UX Design", desc: "I design clean interfaces." }
+    ];
 
+    let div = document.getElementById("whatido-content");
+    if (!div) return;
+
+    div.innerHTML = "";
+
+    data.forEach((d, index) => {
+        div.innerHTML += `
+            <div class="card">
+                <h3>${d.title}</h3>
+                <p>${d.desc}</p>
+                ${isOwner ? `<button onclick="deleteWhatIDo(${index})">❌ Delete</button>` : ""}
+            </div>
+        `;
+    });
+}
+
+function saveWhatIDo() {
+    let data = [
+        { title: wd1title.value, desc: wd1desc.value },
+        { title: wd2title.value, desc: wd2desc.value },
+        { title: wd3title.value, desc: wd3desc.value }
+    ];
+
+    localStorage.setItem("whatido", JSON.stringify(data));
+    loadWhatIDo();
+}
+
+function deleteWhatIDo(index) {
+    let data = JSON.parse(localStorage.getItem("whatido")) || [];
+    data.splice(index, 1);
+    localStorage.setItem("whatido", JSON.stringify(data));
+    loadWhatIDo();
+}
+
+// ================= PROJECTS =================
 function addProject() {
     let projects = JSON.parse(localStorage.getItem("projects")) || [];
 
-    projects.push({
-        title: title.value,
-        desc: desc.value
-    });
+    let title = document.getElementById("title").value;
+    let desc = document.getElementById("desc").value;
+    let fileInput = document.getElementById("imageInput");
 
-    localStorage.setItem("projects", JSON.stringify(projects));
-    loadProjects();
+    let file = fileInput.files[0];
+
+    if (!title || !desc) {
+        alert("Enter title & description");
+        return;
+    }
+
+    // ✅ If image selected
+    if (file) {
+        let reader = new FileReader();
+
+        reader.onload = function (e) {
+            projects.push({
+                title: title,
+                desc: desc,
+                image: e.target.result // base64 image
+            });
+
+            localStorage.setItem("projects", JSON.stringify(projects));
+            loadProjects();
+        };
+
+        reader.readAsDataURL(file);
+    } else {
+        // no image
+        projects.push({
+            title: title,
+            desc: desc
+        });
+
+        localStorage.setItem("projects", JSON.stringify(projects));
+        loadProjects();
+    }
+
+    // clear inputs
+    document.getElementById("title").value = "";
+    document.getElementById("desc").value = "";
+    fileInput.value = "";
 }
 
 function loadProjects() {
@@ -137,6 +134,9 @@ function loadProjects() {
     projects.forEach((p, index) => {
         div.innerHTML += `
             <div class="project-card">
+
+                ${p.image ? `<img src="${p.image}" class="project-media">` : ""}
+
                 <h3>${p.title}</h3>
                 <p>${p.desc}</p>
 
@@ -154,10 +154,36 @@ function deleteProject(index) {
     localStorage.setItem("projects", JSON.stringify(projects));
     loadProjects();
 }
+
+// ================= GITHUB PROJECTS =================
+function addGithubRepo() {
+    let input = document.getElementById("repoName").value.trim();
+
+    if (!input) {
+        alert("Enter repo name");
+        return;
+    }
+
+    // handle full link
+    if (input.includes("github.com")) {
+        let parts = input.split("/");
+        input = parts[parts.length - 1];
+    }
+
+    let githubSelected = JSON.parse(localStorage.getItem("githubRepos")) || [];
+
+    if (!githubSelected.includes(input)) {
+        githubSelected.push(input);
+        localStorage.setItem("githubRepos", JSON.stringify(githubSelected));
+    }
+
+    document.getElementById("repoName").value = "";
+    loadGithubProjects();
+}
+
 function deleteGithubRepo(repoName) {
     let githubSelected = JSON.parse(localStorage.getItem("githubRepos")) || [];
 
-    // remove selected repo
     githubSelected = githubSelected.filter(r => r !== repoName);
 
     localStorage.setItem("githubRepos", JSON.stringify(githubSelected));
@@ -165,12 +191,54 @@ function deleteGithubRepo(repoName) {
     loadGithubProjects();
 }
 
+function loadGithubProjects() {
+    let username = "Shivanginigupta25";
+
+    let githubSelected = JSON.parse(localStorage.getItem("githubRepos")) || [];
+
+    fetch(`https://api.github.com/users/${username}/repos`)
+    .then(res => res.json())
+    .then(data => {
+
+        let container = document.getElementById("projects");
+        if (!container) return;
+
+        // remove old github cards only
+        document.querySelectorAll(".github-card").forEach(el => el.remove());
+
+        data.forEach(repo => {
+            if (githubSelected.length === 0 || githubSelected.includes(repo.name)) {
+                container.innerHTML += `
+                    <div class="project-card github-card">
+                        <h3>${repo.name}</h3>
+                        <p>${repo.description || "No description"}</p>
+
+                        <a href="${repo.html_url}" target="_blank">
+                            <button>View Code 🔗</button>
+                        </a>
+
+                        ${isOwner ? `<button onclick="deleteGithubRepo('${repo.name}')">❌ Delete</button>` : ""}
+                    </div>
+                `;
+            }
+        });
+
+    })
+    .catch(err => console.log("GitHub Error:", err));
+}
+
 // ================= SKILLS =================
 function addSkill() {
     let skills = JSON.parse(localStorage.getItem("skills")) || [];
-    skills.push(skillInput.value);
+    let input = document.getElementById("skillInput");
 
+    if (!input.value.trim()) return;
+
+    skills.push(input.value);
     localStorage.setItem("skills", JSON.stringify(skills));
+
+    input.value = "";
+
     loadSkills();
 }
 
@@ -199,82 +267,24 @@ function deleteSkill(index) {
     localStorage.setItem("skills", JSON.stringify(skills));
     loadSkills();
 }
-// ================= GITHUB (ADDED ONLY) =================
-function loadGithubProjects() {
-    let username = "Shivanginigupta25";
 
-    let githubSelected = JSON.parse(localStorage.getItem("githubRepos")) || [];
-
-    fetch(`https://api.github.com/users/${username}/repos`)
-    .then(res => res.json())
-    .then(data => {
-
-        console.log("GitHub repos:", data);
-
-        let container = document.getElementById("projects");
-        if (!container) return;
-
-        // 🔥 remove only old github cards (not normal projects)
-        document.querySelectorAll(".github-card").forEach(el => el.remove());
-
-        let found = false;
-
-        data.forEach(repo => {
-            if (githubSelected.includes(repo.name)) {
-                found = true;
-
-                container.innerHTML += `
-    <div class="project-card github-card">
-        <h3>${repo.name}</h3>
-        <p>${repo.description || "No description"}</p>
-
-        <a href="${repo.html_url}" target="_blank">
-            <button>View Code 🔗</button>
-        </a>
-
-        ${isOwner ? `<button onclick="deleteGithubRepo('${repo.name}')">❌ Delete</button>` : ""}
-    </div>
-`;
-            }
-        });
-
-        if (!found) {
-            console.log("❌ No matching repo found");
-        }
-    })
-    .catch(err => console.log("Error:", err));
-}
 // ================= CONTACT =================
 function sendMessage() {
-
-    fetch("/contact", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            name: name.value,
-            email: email.value,
-            message: message.value
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById("status").innerText =
-            data.success ? "✅ Message sent" : "❌ Failed";
-    });
+    document.getElementById("status").innerText =
+        "⚠️ Backend removed → message not sent";
 }
 
 // ================= THEME =================
 function toggleTheme() {
     document.body.classList.toggle("light");
 
-    // save theme
     let isLight = document.body.classList.contains("light");
     localStorage.setItem("theme", isLight ? "light" : "dark");
-    document.getElementById("themeBtn").innerText = isLight ? "🌙" : "☀️";
 }
-document.addEventListener("mousemove", e => {
-    document.body.style.setProperty("--x", e.clientX + "px");
-    document.body.style.setProperty("--y", e.clientY + "px");
 
-});
+// ================= LOAD THEME =================
+let savedTheme = localStorage.getItem("theme");
 
+if (savedTheme === "light") {
+    document.body.classList.add("light");
+}

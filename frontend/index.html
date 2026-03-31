@@ -1,4 +1,3 @@
-<!-- ================= index.html ================= -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,136 +5,130 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
 <header>
     <div class="nav">
         <h2>Portfolio</h2>
-        <a href="index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="project.html">Projects</a>
-        <a href="contact.html">Contact</a>
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#projects-section">Projects</a>
+        <a href="#contact">Contact</a>
+
         <button onclick="toggleTheme()">Theme</button>
-    </div>
-</header>
-
-<section id="home">
-     <div class="container"></div>
-    <div class="left">
-        <img src="1111.jpeg" alt="profile">
-    </div>
-    <div class="right">
-        <h1>Hi, I am Shivangini Gupta</h1>
-        <p>Welcome to my Portfolio</p>
-        <h3 id="typing-id"></h3>
-    </div>
-</section>
-
-<div class="card glass"></div>
-<div id="progress"></div>
-
-<header>
-    <div class="nav">
-        <h2>Portfolio</h2>
-        <div>
-            <a href="index.html">Home</a>
-            <a href="about.html" class="active">About</a>
-            <a href="project.html">Projects</a>
-            <a href="contact.html">Contact</a>
-            <button onclick="toggleTheme()">Theme</button>
-
+        <div class="owner-only">
+            <button onclick="logoutOwner()">Logout</button>
         </div>
     </div>
 </header>
 
-<!-- ABOUT -->
+<!-- ================= HOME ================= -->
+<section id="home">
+    <div class="left">
+        <img src="1111.jpeg" alt="profile">
+    </div>
+
+    <div class="right">
+        <h1>Hi, I am Shivangini Gupta</h1>
+        <p>Welcome to my Portfolio</p>
+
+        <div class="hero-buttons">
+            <a href="#contact" class="btn-primary">Hire Me</a>
+            <a href="#projects-section" class="btn-secondary">View Projects</a>
+        </div>
+    </div>
+</section>
+
+<!-- ================= ABOUT ================= -->
 <section id="about">
 <div class="container">
 
     <h1>About Me</h1>
-    <p id="typing"></p>
+    <p>I am a BCA student passionate about coding and web development.</p>
 
     <!-- WHAT I DO -->
     <div id="whatido">
         <h2>What I Do</h2>
+        <div class="row" id="whatido-content"></div>
 
+        <!-- OWNER EDIT -->
         <div class="owner-only">
             <input id="wd1title" placeholder="Title 1">
-            <input id="wd1desc" placeholder="Description 1">
+            <input id="wd1desc" placeholder="Desc 1">
 
             <input id="wd2title" placeholder="Title 2">
-            <input id="wd2desc" placeholder="Description 2">
+            <input id="wd2desc" placeholder="Desc 2">
 
             <input id="wd3title" placeholder="Title 3">
-            <input id="wd3desc" placeholder="Description 3">
+            <input id="wd3desc" placeholder="Desc 3">
 
             <button onclick="saveWhatIDo()">Save</button>
         </div>
-
-        <div class="row" id="whatido-content"></div>
     </div>
-
-<div class="about-left">
-
     <div class="edu-lang-flex">
 
-        <!-- EDUCATION -->
-        <div class="edu-card">
-            <h3>🎓 Education</h3>
-            <p class="highlight">BCA - Computer Applications</p>
-            <span class="edu-tag">Student</span>
-        </div>
+    <!-- EDUCATION -->
+    <div class="edu-card">
+        <h3>🎓 Education</h3>
+        <p class="highlight">BCA - Computer Applications</p>
+        <span class="edu-tag">Student</span>
+    </div>
 
-        <!-- LANGUAGES -->
-        <div class="lang-box">
-            <h3>🌍 Languages</h3>
-            <div class="lang-tags">
-                <span>English</span>
-                <span>Hindi</span>
-            </div>
+    <!-- LANGUAGES -->
+    <div class="lang-box">
+        <h3>🌍 Languages</h3>
+        <div class="lang-tags">
+            <span>English</span>
+            <span>Hindi</span>
         </div>
-
     </div>
 
 </div>
-    <!-- RIGHT SIDE -->
+
+    <!-- SKILLS -->
     <div class="about-right">
         <h3>💻 My Skills</h3>
 
-        <div class="owner-only skill-box">
-            <input type="text" id="skillInput" placeholder="Add skill">
-            <button onclick="addSkill()">Add</button>
-        </div>
+        <div id="skills"></div>
 
-        <div id="skills" class="skills"></div>
+        <div class="owner-only">
+            <input type="text" id="skillInput" placeholder="Add Skill">
+            <button onclick="addSkill()">Add Skill</button>
+        </div>
     </div>
 
 </div>
-
 </section>
-<section id="projects-section" >
-     <div class="container"></div>
+
+<!-- ================= PROJECTS ================= -->
+<section id="projects-section">
     <h1>My Projects</h1>
+
+    <!-- ADD PROJECT -->
     <div class="owner-only">
     <input id="title" placeholder="Title">
     <input id="desc" placeholder="Description">
-    <input type="file" id="file">
+
+    <!-- ✅ NEW IMAGE INPUT -->
+    <input type="file" id="imageInput" accept="image/*">
+
     <button onclick="addProject()">Add Project</button>
 </div>
-<!-- 🔥 GITHUB ADD (ONLY ADDITION) -->
-<div class="owner-only">
-    <input id="repoName" placeholder="GitHub Repo Name">
-    <button onclick="addGithubRepo()">Add GitHub Repo</button>
-</div>
-    <div id="projects">
-           <div class="project-card">
-        <h3>Test Project</h3>
-        <p>This should be visible</p>
-    </div>
+
+    <!-- ADD GITHUB -->
+    <div class="owner-only">
+        <input id="repoName" placeholder="GitHub Repo Name or Link">
+        <button onclick="addGithubRepo()">Add GitHub Repo</button>
     </div>
 
+    <div id="projects"></div>
 </section>
-<section id="contact" >
-     <div class="container"></div>
+
+<!-- ================= CONTACT ================= -->
+<section id="contact">
+
+    <div class="container"></div>
 
     <h1>Contact Me</h1>
     <p style="color:#cbd5e1;">Let’s connect </p>
@@ -149,7 +142,7 @@
         <button onclick="sendMessage()">Send Message</button>
         <p id="status"></p>
 
-        <!-- ✅ WhatsApp Button -->
+        <!-- WhatsApp Button -->
         <a href="https://wa.me/919103932328" target="_blank" class="whatsapp-btn">
             Chat on WhatsApp
         </a>
@@ -159,19 +152,17 @@
     <div class="contact-info">
         <div class="card">
             <p><strong>Phone:</strong> +91-9103932328</p>
-            <p><strong> Email:</strong> shivangini.g25@gmail.com</p>
+            <p><strong>Email:</strong> shivangini.g25@gmail.com</p>
         </div>
 
         <div class="card">
             <a href="https://github.com/Shivanginigupta25" target="_blank">GitHub</a>
-        <a href="https://linkedin.com/shivangini-g25" target="_blank">LinkedIn</a>
+            <a href="https://linkedin.com/shivangini-g25" target="_blank">LinkedIn</a>
         </div>
     </div>
 
 </section>
 
-
-<script src="script.js" defer></script>
+<script src="script.js"></script>
 </body>
 </html>
-
