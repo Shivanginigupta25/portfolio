@@ -1,9 +1,62 @@
-// ================= OWNER MODE (NO PASSWORD) =================
+// ================= FIREBASE (FIXED ONLY) =================
+const firebaseConfig = {
+  apiKey: "AIzaSyB1eTVmfPTCpKGC2M65-SIpFGfSndCaL3s",
+  authDomain: "portfolio-2525.firebaseapp.com",
+  projectId: "portfolio-2525",
+  storageBucket: "portfolio-2525.firebasestorage.app",
+  messagingSenderId: "1062586430122",
+  appId: "1:1062586430122:web:c8d624b0658a3c501f96d3",
+  measurementId: "G-E8F9LXERPN"
+};
+
+// ✅ Prevent duplicate initialization
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+// Firestore
+const db = firebase.firestore();
+
+// 🔥 ENABLE OFFLINE
+db.enablePersistence()
+.catch((err) => {
+    console.log("Persistence error:", err.code);
+});
+
+
+// ================= OWNER MODE (SECURE) =================
+
+// 🔐 MD5 HASH of your password: SHIVnan@2525.54321
+const SECRET = md5("SHIVnan@2525.54321");
+
+// Check owner
 let isOwner = localStorage.getItem("owner") === "true";
 
-// apply owner class
 if (isOwner) {
     document.body.classList.add("owner");
+}
+
+// 🔐 LOGIN FUNCTION
+function loginOwner() {
+    let pass = prompt("Enter admin password:");
+
+    if (!pass) return;
+
+    let hashed = md5(pass);
+
+    if (hashed === SECRET) {
+        localStorage.setItem("owner", "true");
+        alert("Login successful ✅");
+        location.reload();
+    } else {
+        alert("Wrong password ❌");
+    }
+}
+
+// 🔐 LOGOUT
+function logoutOwner() {
+    localStorage.removeItem("owner");
+    location.reload();
 }
 
 // ================= INIT =================
@@ -14,7 +67,6 @@ window.onload = () => {
     loadGithubProjects();
     loadWhatIDo();
 
-    // hide logout button for viewers
     if (!isOwner) {
         document.querySelector(".logout-btn")?.remove();
     }
@@ -27,33 +79,25 @@ function updateOwnerUI() {
     });
 }
 
-// ================= LOGOUT =================
-function logoutOwner() {
-    localStorage.removeItem("owner");
-    location.reload();
-}
 
 // ================= WHAT I DO =================
 function loadWhatIDo() {
-    let data = JSON.parse(localStorage.getItem("whatido")) || [
-        { title: "💻 Web Development", desc: "I build responsive websites." },
-        { title: "🤖 Machine Learning", desc: "I explore ML models." },
-        { title: "🎨 UI/UX Design", desc: "I design clean interfaces." }
-    ];
-
     let div = document.getElementById("whatido-content");
     if (!div) return;
 
     div.innerHTML = "";
 
-    data.forEach((d, index) => {
-        div.innerHTML += `
-            <div class="card">
-                <h3>${d.title}</h3>
-                <p>${d.desc}</p>
-                ${isOwner ? `<button onclick="deleteWhatIDo(${index})">❌ Delete</button>` : ""}
-            </div>
-        `;
+    db.collection("whatido").doc("main").get().then(doc => {
+        let data = doc.exists ? doc.data().data : [];
+
+        data.forEach((d) => {
+            div.innerHTML += `
+                <div class="card">
+                    <h3>${d.title}</h3>
+                    <p>${d.desc}</p>
+                </div>
+            `;
+        });
     });
 }
 
@@ -64,96 +108,77 @@ function saveWhatIDo() {
         { title: wd3title.value, desc: wd3desc.value }
     ];
 
-    localStorage.setItem("whatido", JSON.stringify(data));
-    loadWhatIDo();
+    db.collection("whatido").doc("main").set({ data: data })
+    .then(() => loadWhatIDo());
 }
 
-function deleteWhatIDo(index) {
-    let data = JSON.parse(localStorage.getItem("whatido")) || [];
-    data.splice(index, 1);
-    localStorage.setItem("whatido", JSON.stringify(data));
-    loadWhatIDo();
-}
 
 // ================= PROJECTS =================
 function addProject() {
-    let projects = JSON.parse(localStorage.getItem("projects")) || [];
-
     let title = document.getElementById("title").value;
     let desc = document.getElementById("desc").value;
-    let fileInput = document.getElementById("imageInput");
-
-    let file = fileInput.files[0];
+    let file = document.getElementById("imageInput").files[0];
 
     if (!title || !desc) {
         alert("Enter title & description");
         return;
     }
 
-    // ✅ If image selected
     if (file) {
         let reader = new FileReader();
 
-        reader.onload = function (e) {
-            projects.push({
+        reader.onload = function(e) {
+            db.collection("projects").add({
                 title: title,
                 desc: desc,
-                image: e.target.result // base64 image
-            });
-
-            localStorage.setItem("projects", JSON.stringify(projects));
-            loadProjects();
+                image: e.target.result
+            }).then(() => loadProjects());
         };
 
         reader.readAsDataURL(file);
     } else {
-        // no image
-        projects.push({
+        db.collection("projects").add({
             title: title,
             desc: desc
-        });
-
-        localStorage.setItem("projects", JSON.stringify(projects));
-        loadProjects();
+        }).then(() => loadProjects());
     }
 
-    // clear inputs
     document.getElementById("title").value = "";
     document.getElementById("desc").value = "";
-    fileInput.value = "";
+    document.getElementById("imageInput").value = "";
 }
 
 function loadProjects() {
-    let projects = JSON.parse(localStorage.getItem("projects")) || [];
     let div = document.getElementById("projects");
-
     if (!div) return;
 
     div.innerHTML = "";
 
-    projects.forEach((p, index) => {
-        div.innerHTML += `
-            <div class="project-card">
+    db.collection("projects").get().then(snapshot => {
+        snapshot.forEach(doc => {
+            let p = doc.data();
 
-                ${p.image ? `<img src="${p.image}" class="project-media">` : ""}
+            div.innerHTML += `
+                <div class="project-card">
+                    ${p.image ? `<img src="${p.image}" class="project-media">` : ""}
+                    <h3>${p.title}</h3>
+                    <p>${p.desc}</p>
 
-                <h3>${p.title}</h3>
-                <p>${p.desc}</p>
-
-                ${isOwner ? `<button onclick="deleteProject(${index})">❌ Delete</button>` : ""}
-            </div>
-        `;
+                    ${isOwner ? `<button onclick="deleteProject('${doc.id}')">❌ Delete</button>` : ""}
+                </div>
+            `;
+        });
     });
 
     loadGithubProjects();
 }
 
-function deleteProject(index) {
-    let projects = JSON.parse(localStorage.getItem("projects")) || [];
-    projects.splice(index, 1);
-    localStorage.setItem("projects", JSON.stringify(projects));
-    loadProjects();
+function deleteProject(id) {
+    db.collection("projects").doc(id).delete().then(() => {
+        loadProjects();
+    });
 }
+
 
 // ================= GITHUB PROJECTS =================
 function addGithubRepo() {
@@ -164,7 +189,6 @@ function addGithubRepo() {
         return;
     }
 
-    // handle full link
     if (input.includes("github.com")) {
         let parts = input.split("/");
         input = parts[parts.length - 1];
@@ -187,13 +211,11 @@ function deleteGithubRepo(repoName) {
     githubSelected = githubSelected.filter(r => r !== repoName);
 
     localStorage.setItem("githubRepos", JSON.stringify(githubSelected));
-
     loadGithubProjects();
 }
 
 function loadGithubProjects() {
     let username = "Shivanginigupta25";
-
     let githubSelected = JSON.parse(localStorage.getItem("githubRepos")) || [];
 
     fetch(`https://api.github.com/users/${username}/repos`)
@@ -203,7 +225,6 @@ function loadGithubProjects() {
         let container = document.getElementById("projects");
         if (!container) return;
 
-        // remove old github cards only
         document.querySelectorAll(".github-card").forEach(el => el.remove());
 
         data.forEach(repo => {
@@ -217,62 +238,62 @@ function loadGithubProjects() {
                             <button>View Code 🔗</button>
                         </a>
 
-                        ${isOwner ? `<button onclick="deleteGithubRepo('${repo.name}')">❌ Delete</button>` : ""}
+                        ${isOwner ? `<button onclick="deleteGithubRepo('${repo.name}')">❌</button>` : ""}
                     </div>
                 `;
             }
         });
-
-    })
-    .catch(err => console.log("GitHub Error:", err));
+    });
 }
+
 
 // ================= SKILLS =================
 function addSkill() {
-    let skills = JSON.parse(localStorage.getItem("skills")) || [];
     let input = document.getElementById("skillInput");
 
     if (!input.value.trim()) return;
 
-    skills.push(input.value);
-    localStorage.setItem("skills", JSON.stringify(skills));
-
-    input.value = "";
-
-    loadSkills();
+    db.collection("skills").add({
+        name: input.value
+    }).then(() => {
+        input.value = "";
+        loadSkills();
+    });
 }
 
 function loadSkills() {
-    let skills = JSON.parse(localStorage.getItem("skills")) || [];
     let el = document.getElementById("skills");
-
     if (!el) return;
 
     el.innerHTML = "";
 
-    skills.forEach((s, index) => {
-        el.innerHTML += `
-            <li>
-                ${s}
-                ${isOwner ? `<button onclick="deleteSkill(${index})">❌</button>` : ""}
-            </li>
-        `;
+    db.collection("skills").get().then(snapshot => {
+        snapshot.forEach(doc => {
+            let s = doc.data();
+
+            el.innerHTML += `
+                <li>
+                    ${s.name}
+                    ${isOwner ? `<button onclick="deleteSkill('${doc.id}')">❌</button>` : ""}
+                </li>
+            `;
+        });
     });
 }
 
-function deleteSkill(index) {
-    let skills = JSON.parse(localStorage.getItem("skills")) || [];
-    skills.splice(index, 1);
-
-    localStorage.setItem("skills", JSON.stringify(skills));
-    loadSkills();
+function deleteSkill(id) {
+    db.collection("skills").doc(id).delete().then(() => {
+        loadSkills();
+    });
 }
+
 
 // ================= CONTACT =================
 function sendMessage() {
     document.getElementById("status").innerText =
         "⚠️ Backend removed → message not sent";
 }
+
 
 // ================= THEME =================
 function toggleTheme() {
@@ -281,6 +302,7 @@ function toggleTheme() {
     let isLight = document.body.classList.contains("light");
     localStorage.setItem("theme", isLight ? "light" : "dark");
 }
+
 
 // ================= LOAD THEME =================
 let savedTheme = localStorage.getItem("theme");
